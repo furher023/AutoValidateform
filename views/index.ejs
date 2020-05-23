@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Document</title>
+ <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet"
+  id="bootstrap-css">
+ <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+ <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+ </script>
+</head>
+<body>
+  
+  <form  class="form-horizontal" onsubmit="return submitForm(this)" method="POST">
+   <fieldset>
+    <div id="legend">
+     <legend class="">Register</legend>
+    </div>
+    <div class="control-group">
+     <!-- Name -->
+     <label class="control-label" for="name">Name</label>
+     <div class="controls">
+      <input type="text" id="name" name="name" placeholder="" class="input-xlarge" style="text-transform: capitalize;"><span id="name_err"></span>
+      <p class="help-block">Name should be greater than 3 characters and less than 50 , and must not contain any special characters</p>
+     </div>
+    </div>
+    <div class="control-group">
+     <!-- Username -->
+     <label class="control-label" for="user">Username</label>
+     <div class="controls">
+      <input type="text" id="user" name="user" placeholder="" class="input-xlarge">
+      <!--button to verify username availability-->
+      <button type="button"  onclick="validate()" method="POST" >Validate</button>
+      <span id="valid"></span>
+     </div>
+    </div>
+    <!--Ajax to verify availability of user name-->
+    <script type="text/javascript">
+
+      function validate() {
+        var f;
+        data = {};
+        data.userName = (document.getElementById("user")).value;
+        $.ajax({
+
+          url: "/validate",
+          method: "POST",
+          data: JSON.stringify(data),
+          contentType: 'application/json',
+          success: function (response) {
+            if(response){
+             document.getElementById('valid').innerHTML="Available";
+             f=true;}
+            else{
+            document.getElementById('valid').innerHTML="Unavailable";
+            f=false;}
+          }
+        });
+        return f;
+
+
+      }
+    </script>
+  
+    <div class="control-group">
+     <!-- E-mail -->
+     <label class="control-label" for="email">E-mail</label>
+     <div class="controls">
+      <input type="email" id="email" name="email" placeholder="" class="input-xlarge">
+      <span id="email_err"></span>
+      <p class="help-block">Please provide your E-mail</p>
+     </div>
+    </div>
+  
+    <div class="control-group">
+     <!-- Password-->
+     <label class="control-label" for="password">Password</label>
+     <div class="controls">
+      <input type="password" id="password" name="password" placeholder="" class="input-xlarge">
+      <span id="password_err"></span>
+      <p class="help-block">Password should be at least 8 characters</p>
+     </div>
+    </div>
+  
+    <div class="control-group">
+     <!-- Password -->
+     <label class="control-label" for="confirm">Password (Confirm)</label>
+     <div class="controls">
+      <input type="password" id="confirm" name="password_confirm" placeholder="" class="input-xlarge">
+      <span id="repassword_err"></span>
+      <p class="help-block">Please confirm password</p>
+     </div>
+    </div>
+    <div class="control-group">
+    <!-- File Path -->
+    <label class="control-label" for="fileInput">Upload Picture</label>
+    <div class="controls">
+     <input type="file" id="fileInput" name="fileInput" placeholder="" class="form-control-file">
+    </div>
+    </div>
+
+    <div class="control-group">
+     <!--About me-->
+     <label class="control-label" for="aboutMe">About me</label>
+     <div class="controls">
+      <textarea  class="input-xlarge" name="aboutMe" id="aboutMe" rows="10"></textarea>
+      <span id="bio_err"></span>
+      <p class="help-block">In atmost 100 characters</p>
+     </div>
+     </div>
+  
+    <div class="control-group">
+     <!-- Button -->
+     <div class="controls">
+      <button type="submit" class="btn btn-success">Register</button>
+     </div>
+    </div>
+   </fieldset>
+  </form>
+  
+  
+  <!--Ajax and final form  validation-->
+  
+  
+  <script>
+    function submitForm(form){
+
+      if(ValidateEmail('email') && CheckPassword('password') && rePassword('confirm',document.getElementById('password').value) && bio('aboutMe') && name_check('name')  ){
+        var data = new FormData(form);
+        
+      $.ajax({
+
+        url: "/submitData",
+        method: "POST",
+        data: data,
+        enctype :"multipart/form-data",
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          alert(response);
+        }
+      });
+    }
+    else
+    alert("Please fill the form correctly");
+    return false;
+    }
+  </script>
+
+  <!--Validation functions and event listener for realtime validation-->
+
+  <script>
+    function ValidateEmail(id) {
+        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(document.getElementById(id).value)) {
+          return (true);
+        }
+        return (false);
+      }
+      function CheckPassword(id)
+        {
+          var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
+          if ((document.getElementById(id).value).match(decimal) && (document.getElementById(id).value).length > 8) {
+            return true;
+          }
+          else {
+            return false;
+          }
+        } 
+        function name_check(id){
+        var nc = document.getElementById(id).value;
+        var reg = "^[A-Za-z-0-9]+$";
+        if((nc.length > 3) && (nc.length < 50) && nc.match(reg))
+        return true;
+        else
+        return false;
+        }
+        function rePassword(id,s2){
+          var s1 = document.getElementById(id).value;
+          if( s1.match(s2))
+          return true;
+          else return false;
+        }
+        function bio(id){
+          var b = document.getElementById(id).value;
+          if(b.length < 101)
+          return true;
+          else
+          return false;
+        }
+       
+      
+      // Event listener for realtime validation
+
+
+        document.addEventListener('keyup',()=>{
+        if((document.activeElement.id).match('name')){
+         if(name_check(document.activeElement.id))
+            document.getElementById('name_err').innerHTML = " ";
+         else
+           document.getElementById('name_err').innerHTML= "Invalid";
+        }
+        else if ((document.activeElement.id).match('email')) {
+          if (ValidateEmail(document.activeElement.id))
+            document.getElementById('email_err').innerHTML = " ";
+          else
+            document.getElementById('email_err').innerHTML = "Invalid";
+        }
+         else if ((document.activeElement.id).match('password')) {
+              if (CheckPassword(document.activeElement.id))
+                document.getElementById('password_err').innerHTML = " ";
+              else
+                document.getElementById('password_err').innerHTML = "Invalid";
+            }
+         else if ((document.activeElement.id).match('confirm')) {
+            if (rePassword(document.activeElement.id,document.getElementById('password').value))
+              document.getElementById('repassword_err').innerHTML = " ";
+            else
+              document.getElementById('repassword_err').innerHTML = "password should match";
+          }
+          else if ((document.activeElement.id).match('aboutMe')) {
+            if (bio(document.activeElement.id))
+              document.getElementById('bio_err').innerHTML = " ";
+            else
+              document.getElementById('bio_err').innerHTML = "Invalid";
+          }
+          }
+        );
+  </script>
+  
+</body>
+</html>
